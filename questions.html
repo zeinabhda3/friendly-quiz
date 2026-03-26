@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friendly Quiz 🌟</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    text-align: center;
+    padding: 30px;
+}
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+h2 { color: #333; }
+p { color: #555; }
+input, select {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+button {
+    display: block;
+    width: 90%;
+    padding: 12px;
+    margin: 15px auto;
+    border: none;
+    border-radius: 12px;
+    background: #444;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+}
+button.whatsapp { background: #25D366; }
+button:hover { transform: scale(1.02); }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h2>These questions are to help the ones in need 🌟</h2>
+    <p style="font-size:14px;">You can pick an option or write your own answer 😉</p>
+    <button onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<script>
+const FORM_ENDPOINT = "https://formspree.io/f/mkopnyld"; // <-- your Formspree link
+
+const questions = [
+    { q: "Favorite color?", options: ["Black", "White", "Colorful"] },
+    { q: "Favorite food?", options: ["Fast food", "Home food", "Fancy food"] },
+    { q: "Sweet or salty?", options: ["Sweet", "Salty", "Both"] },
+    { q: "Morning or night person?", options: ["Morning", "Night", "Depends"] },
+    { q: "Coffee, tea, or neither?", options: ["Coffee", "Tea", "Neither"] },
+    { q: "Pick a childhood memory you love", options: ["Playing outside", "Family trips", "Something else"] },
+    { q: "Your dream weekend looks like…", options: ["Chill at home", "Party with friends", "Adventure"] },
+    { q: "A guilty pleasure you can't resist", options: ["Chocolate", "Binge-watching", "Something else"] },
+    { q: "Do you like going to the movies?", options: ["Yes", "Not really", "Depends"] },
+    { q: "Most fun outing ever?", options: ["Going to Swiss Butter", "Movies", "Coffee", "All of them"] },
+    { q: "Do you prefer indoors or outdoors?", options: ["Indoors", "Outdoors", "Depends"] },
+    { q: "Favorite song at the moment?", options: ["Write it down"] },
+    { q: "Ice cream or dessert of choice?", options: ["Ice cream", "Cake", "Write your own"] },
+    { q: "Do you like surprises?", options: ["Love", "Depends", "No"] },
+    { q: "One thing that makes you laugh instantly", options: ["Memes", "Friends", "Something else"] },
+    { q: "Your perfect weekend activity?", options: ["Coffee & books", "Walk & nature", "Going out"] },
+    { q: "Something you're proud of", options: ["Skills", "Accomplishments", "Something else"] },
+    { q: "Dream travel destination?", options: ["Beach", "City", "Mountains"] },
+    { q: "Favorite movie genre?", options: ["Romantic", "Comedy", "Action"] },
+    { q: "Free Wednesday after work? (be honest 😏)", options: ["Yes", "YES", "MAYBE?"] }
+];
+
+let current = 0;
+let responses = [];
+
+function startQuiz() {
+    current = 0;
+    responses = [];
+    showQuestion();
+}
+
+function showQuestion() {
+    const q = questions[current];
+    let optionsHtml = `<select id="choice"><option value="">--Select an option--</option>`;
+    q.options.forEach(opt => {
+        optionsHtml += `<option value="${opt}">${opt}</option>`;
+    });
+    optionsHtml += `</select>`;
+
+    document.getElementById("app").innerHTML = `
+        <h2>${q.q}</h2>
+        ${optionsHtml}
+        <input type="text" id="other" placeholder="Or write your own answer" />
+        <p style="font-size:12px;">Pick an option or write your own answer 😉</p>
+        <button onclick="nextQuestion()">Next</button>
+    `;
+}
+
+function nextQuestion() {
+    const selected = document.getElementById("choice").value.trim();
+    const other = document.getElementById("other").value.trim();
+    if(!selected && !other) { alert("Please select or write an answer 😌"); return; }
+    responses.push({question: questions[current].q, answer: other || selected});
+    current++;
+    if(current < questions.length) showQuestion();
+    else showResult();
+}
+
+function sendAnswers() {
+    fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ responses })
+    });
+}
+
+function showResult() {
+    sendAnswers();
+    let message = "Thanks for sharing 😏 Let me review your answers and will get back to you…";
+    document.getElementById("app").innerHTML = `
+        <h2>${message}</h2>
+        <button class="whatsapp" onclick="openWhatsApp()">Continue chatting 💬</button>
+    `;
+}
+
+function openWhatsApp() {
+    const myNumber = "96171706806"; // your number in international format
+    const text = encodeURIComponent("Hey 😏 I just saw your quiz answers… they were fun!");
+    window.location.href = "https://wa.me/" + myNumber + "?text=" + text;
+}
+</script>
+
+</body>
+</html>
